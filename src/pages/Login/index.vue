@@ -34,7 +34,23 @@
   </div>
 </template>
 <script>
+//登入逻辑的实现
+
+//1.收集用户输入的username&password传递给后端
+
+//2.登入通过后，将后端返回的token存在本地,跳转到主页
+
+//3.每次请求的说话，携带token到请求头authorization
+
+//4.展示token校验正确的数据
+
+//5.校验不通过，跳转到登入页面
+
+import { login } from "@/api";
+import {mapMutator, mapMutations} from "vuex"
+
 export default {
+ 
   data() {
     //jsDoc  注释
     /**
@@ -74,14 +90,49 @@ export default {
     };
   },
   methods: {
+    ...mapMutations(['SET_USERINFO']),
     submitForm(formName) {
       // console.log(this.$refs[formName]);
       //获取注册在refs对象上面的组件的引用
       this.$refs[formName].validate(valid => {
         //代表本地校验通过
         if (valid) {
-          window.location.replace("./pages/Home/index.vue");
+          //打开登入加载动画
+          const loading = this.$loading({
+            lock: true,
+            text: "Loading",
+            spinner: "el-icon-loading",
+            background: "rgba(0, 0, 0, 0.7)"
+          });
+
+          let { username, password } = this.loginForm;
+          //发送登入请求
+          login(username, password)
+            .then(res => {
+              //服务器响应，关闭loading页面
+              loading.close();
+
+              if (res.data.state) {
+                this.$message.success("登录成功！")
+                //用户名和密码正确
+                localStorage.setItem("qf-token", res.data.token);
+                localStorage.setItem("qf2005-userInfo",JSON.stringify(res.data.userInfo));
+                //更改vuex中state['userInfo']的值
+                this.SET_USERINFO(res.data.userInfo)
+
+                //跳转到主页
+                this.$router.push("/home");
+              } else {
+                //用户名或密码错误
+                this.$message.error("用户名或密码错误");
+              }
+            })
+            .catch(err => {
+              console.log(err);
+            });
+          // window.location.replace("./pages/Home/index.vue");
         } else {
+          this.$message.error("请输入用户名或密码");
           console.log("error submit!!");
           return false;
         }
@@ -112,7 +163,7 @@ export default {
   background-position: 60% 65%;
 }
 .loginContainer {
-  position: relative;
+  // position: relative;
   z-index: 9;
   width: 25rem;
   height: 30.47619048rem;
@@ -133,22 +184,20 @@ export default {
     width: 100%;
     background: linear-gradient(90deg, #1596fb, #002dff);
   }
-  
 }
 .bg_video {
-      display: block;
-      margin: auto;
-      min-width: 100%;
-      min-height: 100%;
-      width: auto;
-      height: auto;
-      position: absolute;
-      top: 0;
-      left: 0;
-      // opacity: 0.5;
-    }
+  display: block;
+  margin: auto;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  // opacity: 0.5;
+}
 .el-form.demo-loginForm {
   position: absolute;
 }
-
 </style>
