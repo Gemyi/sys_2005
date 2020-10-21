@@ -32,6 +32,7 @@ router.beforeEach((to, from, next) => {
   }
 })
 
+import "./utils/recursionRoutes.js"
 
 new Vue({
   router,

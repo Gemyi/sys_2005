@@ -7,6 +7,7 @@
         <el-menu
           default-active="1-4-1"
           class="el-menu-vertical-demo"
+          :router="true"
           @open="handleOpen"
           @close="handleClose"
           :collapse="isCollapse"
@@ -24,7 +25,7 @@
               <span slot="title">学员管理</span>
             </template>
             <el-menu-item-group>
-              <el-menu-item index="1-1">
+              <el-menu-item index="/student">
                 <i class="iconfont icon-wode1"></i>学员项目管理
               </el-menu-item>
             </el-menu-item-group>
@@ -65,7 +66,9 @@
           </el-row>
         </el-header>
         <!-- 主体区域 -->
-        <el-main>Main</el-main>
+        <el-main>
+          <router-view></router-view>
+        </el-main>
       </el-container>
     </el-container>
   </div>
@@ -174,7 +177,7 @@ export default {
 }
 /* aside样式 */
 .el-aside {
-  background-color: #fff;
+  background-color: #4c67ff;
   color: #333;
   text-align: center;
   line-height: 200px;
