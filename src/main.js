@@ -13,7 +13,7 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 Vue.use(ElementUI);
 
-Vue.config.productionTip = false;
+// Vue.config.productionTip = false;
 
 //路由前置钩子(导航守卫)
 router.beforeEach((to, from, next) => {

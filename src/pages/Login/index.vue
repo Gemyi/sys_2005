@@ -15,7 +15,7 @@
           <el-input type="text" v-model="loginForm.username" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input type="password" v-model="loginForm.password" autocomplete="off"></el-input>
+          <el-input type="password" @keydown.native.enter="submitForm('loginForm')"  v-model="loginForm.password" autocomplete="off"></el-input>
         </el-form-item>
 
         <el-form-item>
@@ -116,7 +116,7 @@ export default {
                 this.$message.success("登录成功！")
                 //用户名和密码正确
                 localStorage.setItem("qf-token", res.data.token);
-                localStorage.setItem("qf2005-userInfo",JSON.stringify(res.data.userInfo));
+                localStorage.setItem("qf-userInfo",JSON.stringify(res.data.userInfo));
                 //更改vuex中state['userInfo']的值
                 this.SET_USERINFO(res.data.userInfo)
 
@@ -132,7 +132,7 @@ export default {
             });
           // window.location.replace("./pages/Home/index.vue");
         } else {
-          this.$message.error("请输入用户名或密码");
+          // this.$message.error("请输入用户名或密码");
           console.log("error submit!!");
           return false;
         }
