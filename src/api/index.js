@@ -12,5 +12,5 @@ export const login =(username, password) => axios({
 
 
 //获取登录日志
-export const getLoginLog = () =>axios.get("/getLoginLog")
+export const getLoginLog = () => axios.get("/getLoginLog")
 

@@ -30,16 +30,16 @@ axios.interceptors.request.use(config => {
 
 axios.interceptors.response.use(config => {
     let { data } = config;
-    if(data.code == "1004" || data.code == "10022"){
+    if(data.code == '1004' || data.code == '10022'){
         //在当前的后台api中1004代表token校验失败，提示错误，并且让页面跳转到登录页面
         //10022表示session到期失效
 
         // alert("登录信息失效，请重新登录");
-        // console.log("router")
+        console.log("router")
         // console.log(ElementUI);
 
         ElementUI.Message.error("登入信息失效,请重新登入")
-        router.push("/")
+        router.push("/login")
 
     }
     return config;

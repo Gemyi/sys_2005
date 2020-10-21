@@ -121,7 +121,7 @@ export default {
                 this.SET_USERINFO(res.data.userInfo)
 
                 //跳转到主页
-                this.$router.push("/home");
+                this.$router.push("/");
               } else {
                 //用户名或密码错误
                 this.$message.error("用户名或密码错误");

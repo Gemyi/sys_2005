@@ -92,9 +92,9 @@ export default {
       // 1.清除token和userInfo
       // 2.跳转到登录界面
       localStorage.removeItem("qf-token");
-      localStorage.removeItem("qf2005-userInfo");
+      localStorage.removeItem("qf-userInfo");
 
-      this.$router.push("/");
+      this.$router.push("/login");
     },
     handleOpen(key, keyPath) {
       console.log(key, keyPath);
