@@ -10,7 +10,8 @@ axios.defaults.withCredentials = true;
 
 //中断请求属性
 export let CancelToken = axios.CancelToken;
-import NProgress from "nprogress";
+
+import NProgress from "nprogress"
 
 // 创建请求拦截器，可以给每个请求都携带上想要传递的内容
 

@@ -5,14 +5,17 @@
       <h1 class="title">学生管理系统</h1>
       <el-form
         :model="loginForm"
-        status-icon
         :rules="rules"
         ref="loginForm"
         label-width="100px"
         class="demo-loginForm"
       >
         <el-form-item label="用户名" prop="username">
-          <el-input type="text" v-model="loginForm.username" autocomplete="off"></el-input>
+          <el-input
+            type="text"
+            v-model="loginForm.username"
+            autocomplete="off"
+          ></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
           <el-input
@@ -22,18 +25,22 @@
             autocomplete="off"
           ></el-input>
         </el-form-item>
-        <!-- 验证码 -->
-        <el-form-item label="验证码" prop="captcha">
-          <el-input type="text" class="captcha" v-model="loginForm.captcha" autocomplete="off"></el-input>
-          <span
-            class="captcha-svg"
-            v-if="captchaSvg"
-            @click="refreshCaptcha"
-            v-html="captchaSvg"
-          >12321312</span>
+          <!-- 验证码 -->
+        <el-form-item label="验证码"
+                      prop="captcha">
+          <el-input type="text"
+                    class="captcha"
+                    v-model="loginForm.captcha"
+                    autocomplete="off"></el-input>
+          <span class="captcha-svg"
+                v-if="captchaSvg"
+                @click="refreshCaptcha"
+                v-html="captchaSvg">12321312</span>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="submitForm('loginForm')">提交</el-button>
+          <el-button type="primary" @click="submitForm('loginForm')"
+            >提交</el-button
+          >
         </el-form-item>
       </el-form>
     </div>
@@ -60,7 +67,7 @@
 
 //5.校验不通过，跳转到登入页面
 
-import { login } from "@/api";
+import { login,getCaptcha,verifyCaptcha,} from "@/api";
 import { mapMutator, mapMutations } from "vuex";
 
 export default {
@@ -77,7 +84,7 @@ export default {
       // var uPattern = /^[a-zA-Z0-9_-]{4,16}$/;
       // if (!uPattern.test(value)) {
       if (!value) {
-        callback("4到16位(字母，数字，下划线，减号");
+        callback(new Error('请输入用户名4到16位'))
       } else {
         callback();
       }
@@ -86,15 +93,15 @@ export default {
     };
     // 校验密码
     var validatePassword = (rule, value, callback) => {
-      if (!value) {
-        callback("请输入密码");
+      if (value === "") {
+        callback(new Error('请输入密码'))
       } else {
         callback();
       }
     };
     //校验验证码
     var validateCaptcha = (rule, value, callback) => {
-      if (value === " " || value !== 5) {
+      if (value === " " || value.length !== 5) {
         callback(new Error("请输入验证码"));
       } else {
         callback();
@@ -102,6 +109,7 @@ export default {
     };
 
     return {
+      captchaSvg: "",//从服务器获取下来的验证码svg结构
       loginForm: {
         username: "",
         password: "",
@@ -115,14 +123,40 @@ export default {
       }
     };
   },
+  mounted(){
+    this.set_captcha()
+  },
   methods: {
+     //刷新验证码
+      refreshCaptcha() {
+        this.set_captcha()
+      },
+      //设置验证码
+      set_captcha() {
+        getCaptcha()
+          .then(res => {
+            this.captchaSvg = res.data.img;
+          })
+      },
+
     ...mapMutations(["SET_USERINFO"]),
     submitForm(formName) {
       // console.log(this.$refs[formName]);
       //获取注册在refs对象上面的组件的引用
-      this.$refs[formName].validate(valid => {
+      this.$refs[formName].validate(async(valid) => {
         //代表本地校验通过
         if (valid) {
+          //先验证验证码是否正确如果正确再发送登录请求
+         let verifyRes =  await verifyCaptcha(this.loginForm.captcha);
+         if(!verifyRes.data.state){
+            this.$message.error("验证码错误，请重新输入");
+           //验证码正确
+           return;
+          
+         }
+        //  console.log(verifyRes);
+         
+
           //打开登入加载动画
           const loading = this.$loading({
             lock: true,
@@ -162,7 +196,7 @@ export default {
           // window.location.replace("./pages/Home/index.vue");
         } else {
           this.$message.error("请输入用户名或密码");
-          console.log("error submit!!");
+          // console.log("error submit!!");
           return false;
         }
       });
@@ -174,6 +208,14 @@ export default {
 };
 </script>
 <style lang="less" scoped>
+.captcha-svg {
+  background: #fff;
+  display: inline-block;
+  height: 44px;
+  width: 130px;
+  text-align: center;
+  cursor: pointer;
+}
 .login {
   width: 100%;
   height: 100%;
@@ -192,7 +234,7 @@ export default {
   background-position: 60% 65%;
 }
 .loginContainer {
-  // position: relative;
+  position: relative;
   z-index: 9;
   width: 25rem;
   height: 30.47619048rem;
@@ -228,14 +270,7 @@ export default {
   // opacity: 0.5;
 }
 .el-form.demo-loginForm {
-  position: absolute;
-}
-.captcha-svg {
-    background: #fff;
-    display: inline-block;
-    height: 44px;
-    width: 130px;
-    text-align: center;
-    cursor: pointer;
+    padding: 0 50px 0 0;
   }
+
 </style>

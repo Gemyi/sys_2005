@@ -54,13 +54,17 @@ html, body {
     width: 300px;
     margin-right:5px;
 }
+/* .loginContainer .el-input__inner{
+    width:150px;
+    float: left;
+} */
 
 #nprogress .bar { /*进度条样式*/
     background: red !important;
 }
 /* 验证码 */
-.captcha .el-input__inner{
-  width:40% !important;
+.captcha { 
   float:left !important;
+  width:40% !important;
 }
 
