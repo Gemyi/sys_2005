@@ -5,38 +5,14 @@
       <el-aside width="200">
         <h1 class="logo"></h1>
         <el-menu
-          default-active="1-4-1"
+          default-active="$route.path"
           class="el-menu-vertical-demo"
           :router="true"
           @open="handleOpen"
           @close="handleClose"
           :collapse="isCollapse"
         >
-          <el-menu-item index="1">
-            <template slot="title">
-              <i class="iconfont icon-shouye"></i>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <span slot="title">管理首页</span>
-            </template>
-          </el-menu-item>
-          <el-submenu index="1">
-            <template slot="title">
-              <i class="el-icon-location"></i>
-              <span slot="title">学员管理</span>
-            </template>
-            <el-menu-item-group>
-              <el-menu-item index="/student">
-                <i class="iconfont icon-wode1"></i>学员项目管理
-              </el-menu-item>
-            </el-menu-item-group>
-          </el-submenu>
-          <el-menu-item index="1">
-            <template slot="title">
-              <i class="iconfont icon-wode"></i>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <span slot="title">我的中心</span>
-            </template>
-          </el-menu-item>
+          <qf-sub-menu :sideMenu="menuList"></qf-sub-menu>
         </el-menu>
       </el-aside>
       <el-container>
@@ -45,7 +21,10 @@
           <el-row type="flex" class="row-bg" justify="space-between">
             <el-col :span="6">
               <div class="grid-content shouqi">
-                <i class="iconfont icon-shouqi" @click="isCollapse=!isCollapse"></i>
+                <i
+                  class="iconfont icon-shouqi"
+                  @click="isCollapse = !isCollapse"
+                ></i>
               </div>
             </el-col>
             <el-col :span="6">
@@ -59,7 +38,7 @@
                   src="https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3638704920,4019030403&fm=26&gp=0.jpg"
                 ></el-avatar>
                 <span>欢迎您:</span>
-                <b class="nickname">{{userInfo.nickname}}</b>
+                <b class="nickname">{{ userInfo.nickname }}</b>
                 <span class="quit" @click="quit">退出</span>
               </div>
             </el-col>
@@ -67,6 +46,17 @@
         </el-header>
         <!-- 主体区域 -->
         <el-main>
+          <el-breadcrumb separator-class="el-icon-arrow-right">
+            <el-breadcrumb-item :to="{ path: '/Welcome' }"
+              >首页</el-breadcrumb-item
+            >
+            <el-breadcrumb-item
+              :to="{ path: crumb.path }"
+              v-for="crumb in crumbs"
+              :key="crumb.id"
+              >{{ crumb.meta.name }}</el-breadcrumb-item
+            >
+          </el-breadcrumb>
           <router-view></router-view>
         </el-main>
       </el-container>
@@ -74,11 +64,12 @@
   </div>
 </template>
 <script>
+// import { getLoginLog } from "@/api";
+import subMenu from "../../components/subMenu";
 import { mapState } from "vuex";
-// import { mapState } from "vuex"
 export default {
-   computed:{
-    ...mapState(['userInfo'])
+  computed: {
+    ...mapState(["userInfo", "menuList", "crumbs"])
   },
   data() {
     return {
@@ -86,11 +77,15 @@ export default {
       isCollapse: false
     };
   },
-  computed: {
-    ...mapState(["userInfo"])
+  //登录日志
+  mounted() {
+    // getLoginLog().then(res => {
+    //   console.log(res);
+    // });
   },
+
   methods: {
-    quit(){
+    quit() {
       //退出登录
       // 1.清除token和userInfo
       // 2.跳转到登录界面
@@ -98,6 +93,8 @@ export default {
       localStorage.removeItem("qf-userInfo");
 
       this.$router.push("/login");
+      // 刷新页面
+      window.location.reload();
     },
     handleOpen(key, keyPath) {
       console.log(key, keyPath);
@@ -161,9 +158,9 @@ export default {
   vertical-align: middle;
   margin-right: 10px;
 }
-.quit{
+.quit {
   cursor: pointer;
-  color:hotpink;
+  color: hotpink;
 }
 .row-bg {
   /* padding: 10px 0;
@@ -215,5 +212,3 @@ body > .el-container {
   line-height: 320px;
 }
 </style>
-
-

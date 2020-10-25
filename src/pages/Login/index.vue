@@ -15,9 +15,23 @@
           <el-input type="text" v-model="loginForm.username" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input type="password" @keydown.native.enter="submitForm('loginForm')"  v-model="loginForm.password" autocomplete="off"></el-input>
+          <el-input
+            type="password"
+            @keydown.native.enter="submitForm('loginForm')"
+            v-model="loginForm.password"
+            autocomplete="off"
+          ></el-input>
         </el-form-item>
-
+        <!-- 验证码 -->
+        <el-form-item label="验证码" prop="captcha">
+          <el-input type="text" class="captcha" v-model="loginForm.captcha" autocomplete="off"></el-input>
+          <span
+            class="captcha-svg"
+            v-if="captchaSvg"
+            @click="refreshCaptcha"
+            v-html="captchaSvg"
+          >12321312</span>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="submitForm('loginForm')">提交</el-button>
         </el-form-item>
@@ -47,10 +61,9 @@
 //5.校验不通过，跳转到登入页面
 
 import { login } from "@/api";
-import {mapMutator, mapMutations} from "vuex"
+import { mapMutator, mapMutations } from "vuex";
 
 export default {
- 
   data() {
     //jsDoc  注释
     /**
@@ -58,6 +71,7 @@ export default {
      * @param {String} value 输入值
      * @param {Function} callback 校验通过不传参 不通过传参
      */
+    // 校验用户名
     var validateUsername = (rule, value, callback) => {
       //用户名正则，4到16位(字母，数字，下划线，减号)
       // var uPattern = /^[a-zA-Z0-9_-]{4,16}$/;
@@ -70,6 +84,7 @@ export default {
       // console.log(rule);
       // console.log(value);
     };
+    // 校验密码
     var validatePassword = (rule, value, callback) => {
       if (!value) {
         callback("请输入密码");
@@ -77,20 +92,31 @@ export default {
         callback();
       }
     };
+    //校验验证码
+    var validateCaptcha = (rule, value, callback) => {
+      if (value === " " || value !== 5) {
+        callback(new Error("请输入验证码"));
+      } else {
+        callback();
+      }
+    };
+
     return {
       loginForm: {
         username: "",
-        password: ""
+        password: "",
+        captcha: ""
       },
       rules: {
         //validator:传入校验的函数，trigger：触发它的条件：失去焦点
         username: [{ validator: validateUsername, trigger: "blur" }],
-        password: [{ validator: validatePassword, trigger: "blur" }]
+        password: [{ validator: validatePassword, trigger: "blur" }],
+        captcha: [{ validator: validateCaptcha, trigger: "blur" }]
       }
     };
   },
   methods: {
-    ...mapMutations(['SET_USERINFO']),
+    ...mapMutations(["SET_USERINFO"]),
     submitForm(formName) {
       // console.log(this.$refs[formName]);
       //获取注册在refs对象上面的组件的引用
@@ -113,15 +139,18 @@ export default {
               loading.close();
 
               if (res.data.state) {
-                this.$message.success("登录成功！")
+                this.$message.success("登录成功！");
                 //用户名和密码正确
                 localStorage.setItem("qf-token", res.data.token);
-                localStorage.setItem("qf-userInfo",JSON.stringify(res.data.userInfo));
+                localStorage.setItem(
+                  "qf-userInfo",
+                  JSON.stringify(res.data.userInfo)
+                );
                 //更改vuex中state['userInfo']的值
-                this.SET_USERINFO(res.data.userInfo)
+                this.SET_USERINFO(res.data.userInfo);
 
                 //跳转到主页
-                this.$router.push("/");
+                this.$router.push("/Welcome");
               } else {
                 //用户名或密码错误
                 this.$message.error("用户名或密码错误");
@@ -132,7 +161,7 @@ export default {
             });
           // window.location.replace("./pages/Home/index.vue");
         } else {
-          // this.$message.error("请输入用户名或密码");
+          this.$message.error("请输入用户名或密码");
           console.log("error submit!!");
           return false;
         }
@@ -185,6 +214,7 @@ export default {
     background: linear-gradient(90deg, #1596fb, #002dff);
   }
 }
+
 .bg_video {
   display: block;
   margin: auto;
@@ -200,4 +230,12 @@ export default {
 .el-form.demo-loginForm {
   position: absolute;
 }
+.captcha-svg {
+    background: #fff;
+    display: inline-block;
+    height: 44px;
+    width: 130px;
+    text-align: center;
+    cursor: pointer;
+  }
 </style>
